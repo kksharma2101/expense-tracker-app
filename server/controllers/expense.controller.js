@@ -71,6 +71,29 @@ const getAllExpenses = async (req, res, next) => {
   }
 };
 
+// Get Monthly Expense
+// app.get("/api/expenses", authMiddleware,
+const getMonthlyExpense = async (req, res) => {
+  try {
+    const { month, year } = req.query;
+
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0);
+
+    const expenses = await Expense.find({
+      user: req.userId,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    }).sort({ date: -1 });
+
+    res.json(expenses);
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 // // Delete expense
 // router.delete("/:id", async (req, res) => {
 //   try {
@@ -121,4 +144,4 @@ const getAllExpenses = async (req, res, next) => {
 
 // module.exports = router;
 
-export { createExpense, deleteExpense, getAllExpenses };
+export { createExpense, deleteExpense, getAllExpenses, getMonthlyExpense };

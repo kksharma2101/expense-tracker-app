@@ -52,7 +52,7 @@ const register = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "User register successfully",
-      // user,
+      user,
       token,
     });
   } catch (e) {
@@ -85,7 +85,7 @@ const login = async (req, res, next) => {
     user.password = undefined;
 
     // generate jwt token
-    const token = await JWT.sign(
+    const token = JWT.sign(
       {
         _id: user._id,
       },
@@ -98,14 +98,12 @@ const login = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "User logged successfully",
-      //   user: {
-      //     _id: user._id,
-      //     name: user.name,
-      //     email: user.email,
-      //     phone: user.phone,
-      //     address: user.address,
-      //     role: user.role,
-      //   },
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
       token,
     });
   } catch (e) {

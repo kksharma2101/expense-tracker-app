@@ -1,44 +1,77 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 
-export const AuthForm = () => {
+export const AuthForm = ({ type }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
 
-  const [type, setType] = useState("login");
+  const [loggedIn, setLoggedIn] = useState(false);
 
-  const handleChangetype = (val) => {
-    setType(val);
-  };
+  const [auth, setAuth] = useAuth();
+  const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
+    e.preventDefault();
     try {
-      e.preventDefault();
-      const res = await axios.post(`http://localhost:5000/api/auth/register`, {
-        name,
-        email,
-        password,
-        role,
-      });
+      const res = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/register`,
+        {
+          name,
+          email,
+          password,
+          role,
+        }
+      );
+
       console.log(res);
+      if (res && res.data.success) {
+        setAuth({
+          ...auth,
+          user: res.data.user,
+          token: res.data.token,
+        });
+
+        localStorage.setItem("auth", JSON.stringify(res.data));
+        setLoggedIn(true);
+      }
     } catch (error) {
       console.log("error in signup");
     }
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
-      const res = await axios.post(`http://localhost:5000/api/auth/login`, {
-        email,
-        password,
-      });
-      console.log(res)
+      const res = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/login`,
+        {
+          email,
+          password,
+        }
+      );
+      if (res && res.data.success) {
+        setAuth({
+          ...auth,
+          user: res.data.user,
+          token: res.data.token,
+        });
+        localStorage.setItem("auth", JSON.stringify(res.data));
+      }
+      setLoggedIn(true);
     } catch (error) {
       console.log("error in login", error);
     }
   };
+
+  useEffect(() => {
+    if (loggedIn) {
+      navigate("/");
+    }
+  }, [loggedIn, navigate]); // Navigate when 'loggedIn' state changes
 
   return (
     <form
@@ -130,17 +163,17 @@ export const AuthForm = () => {
       <p className="mt-4 text-center text-gray-500 text-xs">
         {type === "login" ? (
           <>
-            <button className="" onClick={() => handleChangetype("signup")}>
+            <Link to={"/sign-up"}>
               Don&apos;t have an account?
-              <span>Sign-up</span>
-            </button>
+              <span className="text-blue-500 text-sm"> Sign-up</span>
+            </Link>
           </>
         ) : (
           <>
-            <button className="" onClick={() => handleChangetype("login")}>
+            <Link to={"/login"}>
               Already have an account?
-              <span>Login</span>
-            </button>
+              <span className="text-blue-500 text-sm"> Login</span>
+            </Link>
           </>
         )}
       </p>
