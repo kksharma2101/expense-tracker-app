@@ -49,7 +49,7 @@ const ExpenseProvider = ({ children }) => {
     } else if (location.pathname === "/") {
       getAllExpenses();
     }
-  }, [userId, filter, location]);
+  }, [userId, filter, location, expenses]);
 
   const addExpense = async (expenseData) => {
     setLoading(true);
@@ -59,8 +59,9 @@ const ExpenseProvider = ({ children }) => {
         expenseData
       );
       const addNewExp = newExpense.data;
-
-      setExpenses(addNewExp);
+      setExpenses((pre) =>
+        Array.isArray(pre) ? [...pre, addNewExp] : [addNewExp]
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -73,8 +74,9 @@ const ExpenseProvider = ({ children }) => {
       await axios.delete(
         `${process.env.REACT_APP_BACKEND_URL}/expense/delete-expense/${id}`
       );
-      // removeExpense(id);
-      setExpenses((prev) => prev.filter((exp) => exp._id !== id));
+      setExpenses((prev) =>
+        Array.isArray(prev) ? prev.filter((exp) => exp._id !== id) : []
+      );
     } catch (err) {
       setError(err.message);
     }
