@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useExpenses } from "../context/ExpenseContext";
-// import { useExpenses } from "../../context/ExpenseContext";
-// import Button from "../UI/Button";
+import { useNavigate } from "react-router-dom";
 
 const AddExpense = () => {
-  const { addExpense, categories } = useExpenses();
+  const { addExpense, categories, loading, error } = useExpenses();
   const [formData, setFormData] = useState({
+    title: "",
     amount: "",
     category: categories[0],
     date: new Date().toISOString().split("T")[0],
-    description: "",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -19,24 +20,54 @@ const AddExpense = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addExpense({
-      ...formData,
-      amount: parseFloat(formData.amount),
-    });
-    setFormData({
-      amount: "",
-      category: categories[0],
-      date: new Date().toISOString().split("T")[0],
-      description: "",
-    });
+    try {
+      await addExpense({
+        ...formData,
+        amount: parseFloat(formData.amount),
+      });
+
+      setFormData({
+        title: "",
+        amount: "",
+        category: categories[0],
+        date: new Date().toISOString().split("T")[0],
+      });
+
+      navigate("/expenses");
+    } catch (error) {
+      console.log("Error in add expense");
+    }
   };
 
+  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (error)
+    return <div className="text-center py-8 text-red-500">{error}</div>;
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Add New Expense</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="w-full p-2">
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-lg mx-auto border-t bg-white p-4 rounded-lg shadow-md"
+      >
+        <h2 className="text-xl text-center font-semibold mb-4">
+          Add New Expense
+        </h2>
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2" htmlFor="description">
+            Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+
         <div className="mb-4">
           <label className="block text-gray-700 mb-2" htmlFor="amount">
             Amount
@@ -88,23 +119,9 @@ const AddExpense = () => {
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="description">
-            Description (Optional)
-          </label>
-          <input
-            type="text"
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-1"
         >
           Add Expense
         </button>

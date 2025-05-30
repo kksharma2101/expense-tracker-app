@@ -9,7 +9,7 @@ import JWT from "jsonwebtoken";
 // register controllers
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
     // check conditions
     if (!(name, email, password)) {
       return next(new AppError("All field is required", 405));
@@ -29,7 +29,6 @@ const register = async (req, res, next) => {
       name,
       email,
       password: passwordHashed,
-      role,
     });
     if (!user) {
       return next(new AppError("User is not register, try again", 405));
@@ -98,12 +97,7 @@ const login = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "User logged successfully",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user,
       token,
     });
   } catch (e) {
@@ -111,71 +105,4 @@ const login = async (req, res, next) => {
   }
 };
 
-// order controller
-const getOrderController = async (req, res) => {
-  try {
-    const orders = await orderModel
-      .find({ buyer: req.user._id })
-      .populate("products", "-photo")
-      .populate("buyer", "name");
-    res.json(orders);
-  } catch (error) {
-    res.status(404).json({
-      success: false,
-      message: "Error in order controller",
-      error,
-    });
-  }
-};
-
-// get all orders
-const getAllOrderController = async (req, res) => {
-  try {
-    const orders = await orderModel
-      .find({})
-      .populate("products", "-photo")
-      .populate("buyer", "name");
-    // .sort({ createdAt: "-1" });
-    res.json(orders);
-  } catch (error) {
-    res.status(404).json({
-      success: false,
-      message: "Error in getAllorder controller",
-      error,
-    });
-  }
-};
-
-// update order status
-const updateOrderStatus = async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const { status } = req.body;
-    const order = await orderModel.findByIdAndUpdate(
-      orderId,
-      { status },
-      { new: true }
-    );
-    res.status(200).json({
-      success: true,
-      message: "Order updated successfully",
-      order,
-    });
-  } catch (error) {
-    res.status(404).json({
-      success: false,
-      message: "Error in updateOrderStatus",
-      error,
-    });
-  }
-};
-
-export {
-  register,
-  login,
-  //   forgotPasswordController,
-  //   userProfileUpdate,
-  getOrderController,
-  getAllOrderController,
-  updateOrderStatus,
-};
+export { register, login };

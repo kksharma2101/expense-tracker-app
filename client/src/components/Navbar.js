@@ -1,22 +1,30 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [auth, setAuth] = useAuth();
+  const [loggedIn, setLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     setAuth(null);
     localStorage.removeItem("auth");
+    setLoggedIn(true);
   };
+
+  // Navigate when 'loggedIn' state changes
+  useEffect(() => {
+    if (loggedIn) navigate("/login");
+  }, [loggedIn, navigate]);
 
   return (
     <nav className="bg-white shadow-md w-full z-10 ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="text-xl font-bold text-blue-600">
-            <Link to="/">KK</Link>
+            <Link to="/">Transerg LLP.</Link>
           </div>
 
           {/* Desktop Links */}
@@ -24,16 +32,22 @@ const Navbar = () => {
             <Link to="/" className="text-gray-700 hover:text-blue-600">
               Home
             </Link>
+            {auth?.user && (
+              <Link
+                to="/expenses"
+                className="text-gray-700 hover:text-blue-600"
+              >
+                Expenses
+              </Link>
+            )}
             <Link to="/" className="text-gray-700 hover:text-blue-600">
               About
             </Link>
             <Link to="/" className="text-gray-700 hover:text-blue-600">
               Services
             </Link>
-            <Link to="/" className="text-gray-700 hover:text-blue-600">
-              Contact
-            </Link>
-            {!auth.token ? (
+
+            {!auth?.user ? (
               <Link
                 to="/login"
                 className="text-gray-700 hover:text-blue-600 hover:underline"
@@ -42,10 +56,10 @@ const Navbar = () => {
               </Link>
             ) : (
               <>
-                <span>{auth.user?.name.slice(0, 5)}</span>
+                <span>{auth?.user?.name.slice(0, 5)}</span>
                 <button
                   className="py-1 px-2 rounded-md bg-red-500 hover:bg-red-600"
-                  onClick={() => handleLogout}
+                  onClick={handleLogout}
                 >
                   Logout
                 </button>
@@ -102,7 +116,7 @@ const Navbar = () => {
           <Link to="/" className="block text-gray-700 hover:text-blue-600">
             Contact
           </Link>
-          {!auth.token ? (
+          {!auth?.user ? (
             <Link
               to="/login"
               className="text-gray-700 hover:text-blue-600 hover:underline"
@@ -111,7 +125,7 @@ const Navbar = () => {
             </Link>
           ) : (
             <div className="flex flex-col">
-              <span>User: {auth.user?.name}</span>
+              <span>User: {auth?.user?.name}</span>
               <button
                 className="text-lg font-bold hover:text-blue-600"
                 onClick={() => handleLogout}

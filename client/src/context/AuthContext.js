@@ -22,7 +22,6 @@ const AuthProvider = ({ children }) => {
         token: parseData.token,
       });
     }
-    // eslint-disable-next-line
   }, []);
 
   return (

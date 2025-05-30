@@ -7,7 +7,6 @@ export const AuthForm = ({ type }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
 
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -23,11 +22,9 @@ export const AuthForm = ({ type }) => {
           name,
           email,
           password,
-          role,
         }
       );
 
-      console.log(res);
       if (res && res.data.success) {
         setAuth({
           ...auth,
@@ -69,7 +66,7 @@ export const AuthForm = ({ type }) => {
 
   useEffect(() => {
     if (loggedIn) {
-      navigate("/");
+      navigate("/expenses");
     }
   }, [loggedIn, navigate]); // Navigate when 'loggedIn' state changes
 
@@ -82,41 +79,22 @@ export const AuthForm = ({ type }) => {
         {type === "login" ? "Login" : "Sign Up"}
       </h2>
       {type === "signup" && (
-        <>
-          <div className="mb-4">
-            <label
-              htmlFor="name"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Name:
-            </label>
-            <input
-              type="name"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="border p-2 rounded-md w-full"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="role"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Role:
-            </label>
-            <input
-              type="role"
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-              className="border p-2 rounded-md w-full"
-            />
-          </div>
-        </>
+        <div className="mb-4">
+          <label
+            htmlFor="name"
+            className="block text-gray-700 text-sm font-bold mb-2"
+          >
+            Name:
+          </label>
+          <input
+            type="name"
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="border p-2 rounded-md w-full"
+          />
+        </div>
       )}
 
       <div className="mb-4">

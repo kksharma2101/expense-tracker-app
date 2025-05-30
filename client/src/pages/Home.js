@@ -1,10 +1,10 @@
-import AddExpense from "../components/AddExpense";
+import ExpenseList from "../components/ExpenseList";
 
 function Home() {
   return (
     <>
       <div className="">
-        <AddExpense />
+        <ExpenseList />
       </div>
     </>
   );

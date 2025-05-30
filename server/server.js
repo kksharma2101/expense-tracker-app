@@ -13,7 +13,7 @@ app.use(cors());
 const PORT = process.env.PORT || 2002;
 
 app.use("/api/auth", routes);
-app.use("/api", expenseRoutes);
+app.use("/api/expense", expenseRoutes);
 
 connectToDb();
 

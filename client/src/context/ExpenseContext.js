@@ -1,13 +1,11 @@
+import axios from "axios";
 import { createContext, useContext, useState, useEffect } from "react";
-import {
-  getExpenses as fetchExpenses,
-  addExpense as createExpense,
-  deleteExpense as removeExpense,
-} from "../services/expenses";
+import { useAuth } from "./AuthContext";
+import { useLocation } from "react-router-dom";
 
 const ExpenseContext = createContext();
 
-export const ExpenseProvider = ({ children }) => {
+const ExpenseProvider = ({ children }) => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -15,44 +13,67 @@ export const ExpenseProvider = ({ children }) => {
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
   });
+  const location = useLocation();
 
-  const categories = [
-    "Food",
-    "Travel",
-    "Bills",
-    "Shopping",
-    "Entertainment",
-    "Other",
-  ];
+  const [user] = useAuth();
+  const userId = user?.user?._id;
+
+  const categories = ["Food", "Bills", "Travel", "Other"];
+
+  const getAllExpenses = async () => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/expense/get-expense`
+      );
+
+      setExpenses(data);
+    } catch (error) {
+      console.log("Error in Geting all expense", error);
+    }
+  };
 
   useEffect(() => {
     const loadExpenses = async () => {
-      setLoading(true);
       try {
-        const data = await fetchExpenses(filter.month, filter.year);
+        const { data } = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/expense/get-monthly-expense?userId=${userId}&year=${filter.year}&month=${filter.month}`
+        );
         setExpenses(data);
       } catch (err) {
         setError(err.message);
-      } finally {
-        setLoading(false);
       }
     };
 
-    loadExpenses();
-  }, [filter]);
+    if (userId && location.pathname === "/expenses") {
+      loadExpenses();
+    } else if (location.pathname === "/") {
+      getAllExpenses();
+    }
+  }, [userId, filter, location]);
 
-  const addExpense = async (expense) => {
+  const addExpense = async (expenseData) => {
+    setLoading(true);
     try {
-      const newExpense = await createExpense(expense);
-      setExpenses((prev) => [...prev, newExpense]);
+      const newExpense = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/expense/create-expense`,
+        expenseData
+      );
+      const addNewExp = newExpense.data;
+
+      setExpenses(addNewExp);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const deleteExpense = async (id) => {
     try {
-      await removeExpense(id);
+      await axios.delete(
+        `${process.env.REACT_APP_BACKEND_URL}/expense/delete-expense/${id}`
+      );
+      // removeExpense(id);
       setExpenses((prev) => prev.filter((exp) => exp._id !== id));
     } catch (err) {
       setError(err.message);
@@ -81,4 +102,6 @@ export const ExpenseProvider = ({ children }) => {
   );
 };
 
-export const useExpenses = () => useContext(ExpenseContext);
+const useExpenses = () => useContext(ExpenseContext);
+
+export { useExpenses, ExpenseProvider };

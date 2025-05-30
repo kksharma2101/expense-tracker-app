@@ -1,45 +1,32 @@
-// const express = require('express');
-// const router = express.Router();
-// const Expense = require('../models/Expense');
 import Expense from "../models/expense.model.js";
 import AppError from "../utils/error.utils.js";
-
-// Get all expenses
-// router.get("/", async (req, res) => {
-//   try {
-//     const expenses = await Expense.find().sort({ date: -1 });
-//     res.json(expenses);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
 
 // Add new expense
 const createExpense = async (req, res, next) => {
   try {
     const { title, amount, category, date } = req.body;
-
+    // console.log(req.user.id);
     if (!(title, amount, category)) {
       return next(new AppError("All field is required", 405));
     }
 
-    const newExpense = new Expense({
+    const data = new Expense({
       title,
       amount,
       category,
       date,
-      user: req.user.id,
+      user: req.user.id || req.user._id,
     });
 
-    if (!newExpense) {
+    if (!data) {
       return next(new AppError("Add expense is faild, try again", 404));
     }
 
-    await newExpense.save();
+    await data.save();
 
     res.status(201).json({
       message: "Expense add successfully",
-      newExpense,
+      data,
     });
   } catch (e) {
     return next(new AppError(e.message, 400));
@@ -72,76 +59,42 @@ const getAllExpenses = async (req, res, next) => {
 };
 
 // Get Monthly Expense
-// app.get("/api/expenses", authMiddleware,
 const getMonthlyExpense = async (req, res) => {
   try {
-    const { month, year } = req.query;
+    const { userId, month, year } = req.query;
 
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0);
+    if (!month || !year || isNaN(parseInt(month)) || isNaN(parseInt(year))) {
+      return res.status(400).json({
+        message: "Month and year are required and must be valid numbers.",
+      });
+    }
+
+    const monthInt = parseInt(month, 10);
+    const yearInt = parseInt(year, 10);
+
+    if (monthInt < 1 || monthInt > 12) {
+      return res
+        .status(400)
+        .json({ message: "Month must be between 1 and 12." });
+    }
+
+    const startDate = new Date(yearInt, monthInt - 1, 1);
+    const endDate = new Date(yearInt, monthInt, 1); // Start of next month
 
     const expenses = await Expense.find({
-      user: req.userId,
+      user: userId,
       date: {
         $gte: startDate,
-        $lte: endDate,
+        $lt: endDate,
       },
     }).sort({ date: -1 });
 
-    res.json(expenses);
+    res.json({ expenses });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+    res
+      .status(500)
+      .json({ message: "Something went wrong", message: error.message });
   }
 };
-
-// // Delete expense
-// router.delete("/:id", async (req, res) => {
-//   try {
-//
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
-
-// // Get expenses summary
-// router.get("/summary", async (req, res) => {
-//   try {
-//     const summary = await Expense.aggregate([
-//       {
-//         $group: {
-//           _id: "$category",
-//           total: { $sum: "$amount" },
-//         },
-//       },
-//       { $sort: { total: -1 } },
-//     ]);
-//     res.json(summary);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
-
-// // Get monthly expenses
-// router.get("/monthly", async (req, res) => {
-//   try {
-//     const monthlyExpenses = await Expense.aggregate([
-//       {
-//         $group: {
-//           _id: {
-//             year: { $year: "$date" },
-//             month: { $month: "$date" },
-//           },
-//           total: { $sum: "$amount" },
-//         },
-//       },
-//       { $sort: { "_id.year": 1, "_id.month": 1 } },
-//     ]);
-//     res.json(monthlyExpenses);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
-
-// module.exports = router;
 
 export { createExpense, deleteExpense, getAllExpenses, getMonthlyExpense };
