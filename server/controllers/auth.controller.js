@@ -21,7 +21,7 @@ const register = async (req, res, next) => {
       return next(new AppError("Email is already exists", 405));
     }
 
-    // password bcrypt
+    // password hashed
     const passwordHashed = await passwordHash(password);
 
     // create user
@@ -37,7 +37,7 @@ const register = async (req, res, next) => {
     await user.save();
     user.password = undefined;
 
-    // generate cookie
+    // generate token
     const token = JWT.sign(
       {
         id: user._id,

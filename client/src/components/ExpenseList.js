@@ -62,7 +62,7 @@ const ExpenseList = () => {
                   className="p-2 border rounded"
                 >
                   {Array.from({ length: 5 }, (_, i) => {
-                    const year = new Date().getFullYear() - 2 + i;
+                    const year = new Date().getFullYear() - 4 + i;
                     return (
                       <option key={year} value={year}>
                         {year}

@@ -55,7 +55,7 @@ const AddExpense = () => {
           Add New Expense
         </h2>
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="description">
+          <label className="block text-gray-700 mb-2" htmlFor="title">
             Title
           </label>
           <input
