@@ -1,23 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [auth, setAuth] = useAuth();
-  const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
+
 
   const handleLogout = () => {
     setAuth(null);
     localStorage.removeItem("auth");
-    setLoggedIn(true);
+    navigate("/login");
   };
-
-  // Navigate when 'loggedIn' state changes
-  useEffect(() => {
-    if (loggedIn) navigate("/login");
-  }, [loggedIn, navigate]);
 
   return (
     <nav className="bg-white shadow-md w-full z-10 ">

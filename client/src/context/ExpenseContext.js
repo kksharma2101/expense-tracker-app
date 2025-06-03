@@ -1,69 +1,96 @@
 import axios from "axios";
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react"; // Added useCallback
 import { useAuth } from "./AuthContext";
 import { useLocation } from "react-router-dom";
+// import { toast } from "react-toastify"; // Assume you're using react-toastify
 
 const ExpenseContext = createContext();
+
+// Centralized fixed categories (consider moving to constants file)
+const EXPENSE_CATEGORIES = ["Food", "Bills", "Travel", "Other"]; // Added more examples
 
 const ExpenseProvider = ({ children }) => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); // Keep error for global context status
   const [filter, setFilter] = useState({
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
   });
   const location = useLocation();
 
-  const [user] = useAuth();
-  const userId = user?.user?._id;
+  const [auth] = useAuth();
+  const userId = auth?.user?._id; // Directly access _id
 
-  const categories = ["Food", "Bills", "Travel", "Other"];
-
-  const getAllExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/expense/get-expense`
-      );
+      let url;
+      if (location.pathname === "/expenses" && userId) {
+        url = `${process.env.REACT_APP_BACKEND_URL}/expense/get-monthly-expense?userId=${userId}&year=${filter.year}&month=${filter.month}`;
+      } else if (location.pathname === "/") {
+        // Assuming a route to get all expenses for the dashboard/overview
+        url = `${process.env.REACT_APP_BACKEND_URL}/expense/get-expense`;
+      } else {
+        // If on a path where expenses are not needed, just return
+        setLoading(false);
+        return;
+      }
+
+      const { data } = await axios.get(url);
 
       setExpenses(data);
-    } catch (error) {
-      console.log("Error in Geting all expense", error);
-    }
-  };
+    } catch (err) {
+      console.error("Error fetching expenses:", err);
 
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to fetch expenses."
+      );
+      // toast.error(err.response?.data?.message || "Failed to load expenses."); // User feedback
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, filter.month, filter.year, location.pathname]); // Dependencies for useCallback
+
+  // Effect to load expenses when userId, filter, or path changes
   useEffect(() => {
-    const loadExpenses = async () => {
-      try {
-        const { data } = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/expense/get-monthly-expense?userId=${userId}&year=${filter.year}&month=${filter.month}`
-        );
-        setExpenses(data);
-      } catch (err) {
-        setError(err.message);
-      }
-    };
-
-    if (userId && location.pathname === "/expenses") {
-      loadExpenses();
-    } else if (location.pathname === "/") {
-      getAllExpenses();
+    if (userId || location.pathname === "/") {
+      fetchExpenses();
     }
-  }, [userId, filter, location, expenses]);
+  }, [fetchExpenses, userId, location.pathname]); // fetchExpenses is now a stable dependency due to useCallback
 
   const addExpense = async (expenseData) => {
     setLoading(true);
     try {
-      const newExpense = await axios.post(
+      const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/expense/create-expense`,
         expenseData
+        // Optional: add auth token if needed
+        // { headers: { Authorization: `Bearer ${user.token}` } }
       );
-      const addNewExp = newExpense.data;
+
+      // setExpenses((prev) => [...prev, response.data]);
       setExpenses((pre) =>
-        Array.isArray(pre) ? [...pre, addNewExp] : [addNewExp]
+        Array.isArray(pre) ? [...pre, response] : [response]
       );
+
+      // toast.success("Expense added successfully!");
     } catch (err) {
-      setError(err.message);
+      console.error("Error adding expense:", err);
+      const errorMessage =
+        err.response?.data?.message || "Failed to add expense.";
+      setError(errorMessage);
+      // toast.error(errorMessage); // User feedback
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -75,22 +102,29 @@ const ExpenseProvider = ({ children }) => {
         `${process.env.REACT_APP_BACKEND_URL}/expense/delete-expense/${id}`
       );
       setExpenses((prev) =>
-        Array.isArray(prev) ? prev.filter((exp) => exp._id !== id) : []
+        Array.isArray(prev) ? prev.filter((exp) => exp.id !== id) : []
       );
+      // setExpenses((prev) => prev.filter((exp) => exp._id !== id));
+      // toast.success("Expense deleted successfully!");
     } catch (err) {
-      setError(err.message);
+      console.error("Error deleting expense:", err);
+      const errorMessage =
+        err.response?.data?.message || "Failed to delete expense.";
+      setError(errorMessage);
+      // toast.error(errorMessage); // User feedback
+      throw new Error(errorMessage);
     }
   };
 
-  const updateFilter = (newFilter) => {
+  const updateFilter = useCallback((newFilter) => {
     setFilter((prev) => ({ ...prev, ...newFilter }));
-  };
+  }, []); // No dependencies for this simple updater
 
   return (
     <ExpenseContext.Provider
       value={{
         expenses,
-        categories,
+        categories: EXPENSE_CATEGORIES,
         loading,
         error,
         filter,

@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
 import ExpenseList from "./components/ExpenseList";
 import AddExpense from "./components/AddExpense";
+// import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -13,6 +14,15 @@ function App() {
       <Navbar />
       <main className="container mx-auto p-4">
         <Routes>
+          {/* <Route path="/login" element={<LoginPage />} />
+          <Route path="/sign-up" element={<SignupPage />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/expenses" element={<ExpenseList />} />
+            <Route path="/add-expense" element={<AddExpense />} />
+          </Route>
+          <Route path="/" element={<Home />} /> */}
+
           <Route path="/login" element={<LoginPage />} />
           <Route path="/sign-up" element={<SignupPage />} />
           <Route path="/expenses" element={<ExpenseList />} />
