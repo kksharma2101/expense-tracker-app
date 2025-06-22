@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useExpenses } from "../context/ExpenseContext";
 import ExpenseItem from "./ExpenseItem";
 import MonthlyTrends from "./MonthlyTrends";
@@ -29,16 +29,9 @@ const ExpenseList = () => {
     return <div className="text-center py-8 text-red-500">{error}</div>;
 
   return (
-    <div className="space-y-6">
-      {auth?.user && (
-        <div className="w-full flex justify-center items-center">
-          <button className="bg-blue-500 hover:bg-blue-600 py-1 px-2 rounded-md mx-auto text-white font-bold">
-            <Link to="/add-expense">Add New Expenses</Link>
-          </button>
-        </div>
-      )}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <div className="flex justify-between items-center mb-4">
+    <div className="space-y-6 w-full">
+      <div className="bg-white p-6 w-full rounded-lg shadow-md">
+        <div className="flex justify-between items-center w-full mb-4">
           <h2 className="text-xl font-semibold">Your Expenses</h2>
           <div className="flex space-x-4">
             {auth?.user && location.pathname === "/expenses" && (

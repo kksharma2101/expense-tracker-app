@@ -2,11 +2,17 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+const navbarItems = [
+  { name: "Home", id: "home", naviLink: "/" },
+  { name: "Add Expense", id: "add-expense", navLink: "/add-expense" },
+  { name: "Expenses", id: "expenses", navLink: "/expenses" },
+  { name: "About", id: "about", navLink: "/" },
+];
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [auth, setAuth] = useAuth();
   const navigate = useNavigate();
-
 
   const handleLogout = () => {
     setAuth(null);
@@ -24,23 +30,15 @@ const Navbar = () => {
 
           {/* Desktop Links */}
           <div className="hidden md:flex space-x-6">
-            <Link to="/" className="text-gray-700 hover:text-blue-600">
-              Home
-            </Link>
-            {auth?.user && (
+            {navbarItems.map((item) => (
               <Link
-                to="/expenses"
+                to={item.navLink}
+                key={item.id}
                 className="text-gray-700 hover:text-blue-600"
               >
-                Expenses
+                {auth?.user ? item.name : ""}
               </Link>
-            )}
-            <Link to="/" className="text-gray-700 hover:text-blue-600">
-              About
-            </Link>
-            <Link to="/" className="text-gray-700 hover:text-blue-600">
-              Services
-            </Link>
+            ))}
 
             {!auth?.user ? (
               <Link
@@ -51,9 +49,8 @@ const Navbar = () => {
               </Link>
             ) : (
               <>
-                <span>{auth?.user?.name.slice(0, 5)}</span>
                 <button
-                  className="py-1 px-2 rounded-md bg-red-500 hover:bg-red-600"
+                  className="py-1 px-2 rounded-md bg-blue-500 hover:bg-blue-600 font-bold"
                   onClick={handleLogout}
                 >
                   Logout
@@ -99,18 +96,16 @@ const Navbar = () => {
       {/* Mobile Links */}
       {isOpen && (
         <div className="md:hidden px-4 pb-4 space-y-2">
-          <Link to="/" className="block text-gray-700 hover:text-blue-600">
-            Home
-          </Link>
-          <Link to="/" className="block text-gray-700 hover:text-blue-600">
-            About
-          </Link>
-          <Link to="/" className="block text-gray-700 hover:text-blue-600">
-            Services
-          </Link>
-          <Link to="/" className="block text-gray-700 hover:text-blue-600">
-            Contact
-          </Link>
+          {navbarItems.map((item) => (
+            <Link
+              to={item.navLink}
+              key={item.id}
+              className="block text-gray-700 hover:text-blue-600"
+            >
+              {auth?.user ? item.name : ""}
+            </Link>
+          ))}
+
           {!auth?.user ? (
             <Link
               to="/login"
@@ -119,7 +114,7 @@ const Navbar = () => {
               Login
             </Link>
           ) : (
-            <div className="flex flex-col">
+            <div className="flex items-center justify-between">
               <span>User: {auth?.user?.name}</span>
               <button
                 className="text-lg font-bold hover:text-blue-600"
