@@ -106,10 +106,15 @@ const AddExpense = () => {
 
   // Early returns for initial loading or context errors
   if (loading)
-    return <div className="text-center py-8">Loading categories...</div>;
+    return (
+      <div className="flex justify-center items-center my-auto h-screen">
+        Loading categories...
+      </div>
+    );
+    
   if (contextError)
     return (
-      <div className="text-center py-8 text-red-500">
+      <div className="flex justify-center items-center my-auto h-screen text-red-500">
         Error loading categories: {contextError}
       </div>
     );

@@ -1,8 +1,7 @@
-import React, { useState } from "react"; // Import React for React.memo
+import React, { useState } from "react";
 import { useExpenses } from "../context/ExpenseContext";
 import { format } from "date-fns";
 import { useAuth } from "../context/AuthContext";
-// import { toast } from "react-toastify";
 
 // Centralized category colors (consider moving this to a constants file)
 const CATEGORY_COLORS = {
@@ -27,6 +26,7 @@ const ExpenseItem = React.memo(({ expense }) => {
     setIsDeleting(true);
     try {
       await deleteExpense(expense._id);
+      window.location.reload();
       // toast.success("Expense deleted successfully!");
     } catch (error) {
       console.error("Error deleting expense:", error);
@@ -87,8 +87,8 @@ const ExpenseItem = React.memo(({ expense }) => {
       {/* Expense Description */}
       {showDetails && (
         <div className="mt-3 pl-14 text-sm text-gray-600">
-          {expense.description ? (
-            <p>{expense.description}</p>
+          {expense?.description || expense?.title ? (
+            <p>{expense.description || expense.title}</p>
           ) : (
             <p className="text-gray-400 italic">No description provided</p>
           )}

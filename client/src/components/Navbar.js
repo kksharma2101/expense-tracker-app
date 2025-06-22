@@ -43,7 +43,7 @@ const Navbar = () => {
             {!auth?.user ? (
               <Link
                 to="/login"
-                className="text-gray-700 hover:text-blue-600 hover:underline"
+                className="text-gray-700 font-bold hover:text-blue-600 hover:underline"
               >
                 Login
               </Link>

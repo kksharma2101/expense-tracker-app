@@ -24,9 +24,19 @@ const ExpenseList = () => {
     updateFilter({ year: parseInt(e.target.value) });
   };
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center my-auto h-screen">
+        Loading...
+      </div>
+    );
+    
   if (error)
-    return <div className="text-center py-8 text-red-500">{error}</div>;
+    return (
+      <div className="flex justify-center items-center my-auto h-screen text-red-500">
+        {error}
+      </div>
+    );
 
   return (
     <div className="space-y-6 w-full">
