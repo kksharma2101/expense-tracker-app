@@ -49,9 +49,11 @@ const ExpenseList = () => {
         />
       )}
       <div className="bg-white p-6 w-full rounded-lg shadow-md">
-        <div className="flex justify-between items-center w-full mb-4">
-          <h2 className="text-xl font-semibold">Your Expenses</h2>
-          <div className="flex space-x-4">
+        <div className="block sm:flex justify-between items-center w-full mb-4">
+          <h2 className="text-center mb-5 sm:mb-0 sm:text-balance text-xl font-semibold">
+            Your Expenses
+          </h2>
+          <div className="flex gap-2 items-center justify-between md:space-x-4">
             {auth?.user && location.pathname === "/expenses" && (
               <>
                 <select

@@ -117,7 +117,7 @@ const Navbar = () => {
           ) : (
             <div className="flex items-center justify-between">
               <span>User: {auth?.user?.name}</span>
-              <Button onClick={() => handleLogout} children="Logout" />
+              <Button onClick={handleLogout} children="Logout" />
             </div>
           )}
         </div>

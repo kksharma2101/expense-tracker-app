@@ -39,7 +39,7 @@ const ExpenseItem = React.memo(({ expense }) => {
   };
 
   return (
-    <div className="p-4 hover:bg-gray-50 transition-colors duration-150">
+    <div className="py-4 hover:bg-gray-50 transition-colors duration-150">
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-4">
           {/* Category initial and color */}
@@ -63,7 +63,7 @@ const ExpenseItem = React.memo(({ expense }) => {
           <span className="font-bold text-xs md:text-base text-red-600">
             -${expense.amount.toFixed(2)}
           </span>
-          <div className="flex space-x-2">
+          <div className="flex flex-col sm:block">
             {/* Details Button */}
             <Button
               children={showDetails ? "Hide" : "Details"}
