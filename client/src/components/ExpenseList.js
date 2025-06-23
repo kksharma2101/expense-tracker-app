@@ -4,9 +4,11 @@ import ExpenseItem from "./ExpenseItem";
 import MonthlyTrends from "./MonthlyTrends";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import Button from "./ui/Button";
 
 const ExpenseList = () => {
-  const { expenses, loading, error, filter, updateFilter } = useExpenses();
+  const { expenses, loading, error, filter, updateFilter, handleExportCSV } =
+    useExpenses();
   const [showChart, setShowChart] = useState(true);
   const [auth] = useAuth();
   const location = useLocation();
@@ -30,7 +32,7 @@ const ExpenseList = () => {
         Loading...
       </div>
     );
-    
+
   if (error)
     return (
       <div className="flex justify-center items-center my-auto h-screen text-red-500">
@@ -40,6 +42,7 @@ const ExpenseList = () => {
 
   return (
     <div className="space-y-6 w-full">
+      <Button children="Export All Expenses to CSV" onClick={handleExportCSV} />
       <div className="bg-white p-6 w-full rounded-lg shadow-md">
         <div className="flex justify-between items-center w-full mb-4">
           <h2 className="text-xl font-semibold">Your Expenses</h2>
@@ -76,12 +79,11 @@ const ExpenseList = () => {
               </>
             )}
 
-            <button
+            <Button
+              children={showChart ? "Hide Chart" : "Show Chart"}
               onClick={() => setShowChart(!showChart)}
-              className="p-2 bg-gray-200 rounded hover:bg-gray-300"
-            >
-              {showChart ? "Hide Chart" : "Show Chart"}
-            </button>
+              variant="secondary"
+            />
           </div>
         </div>
 
@@ -103,7 +105,6 @@ const ExpenseList = () => {
                   No expenses recorded for this period
                 </div>
               ) : (
-                // <></>
                 expenses.expense?.map((expense) => (
                   <ExpenseItem key={expense._id} expense={expense} />
                 ))

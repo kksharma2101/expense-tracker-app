@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useExpenses } from "../context/ExpenseContext";
 import { format } from "date-fns";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
+import Button from "./ui/Button";
 
 // Centralized category colors (consider moving this to a constants file)
 const CATEGORY_COLORS = {
@@ -26,11 +28,11 @@ const ExpenseItem = React.memo(({ expense }) => {
     setIsDeleting(true);
     try {
       await deleteExpense(expense._id);
+      toast.success("Expense deleted successfully!");
       window.location.reload();
-      // toast.success("Expense deleted successfully!");
     } catch (error) {
       console.error("Error deleting expense:", error);
-      // toast.error("Failed to delete expense. Please try again.");
+      toast.error("Failed to delete expense. Please try again.");
     } finally {
       setIsDeleting(false);
     }
@@ -63,22 +65,22 @@ const ExpenseItem = React.memo(({ expense }) => {
           </span>
           <div className="flex space-x-2">
             {/* Details Button */}
-            <button
+            <Button
+              children={showDetails ? "Hide" : "Details"}
               onClick={() => setShowDetails(!showDetails)}
-              className="text-gray-500 hover:text-gray-700 text-xs sm:text-base"
-            >
-              {showDetails ? "Hide" : "Details"}
-            </button>
+              size="small"
+              variant="ghost"
+            />
 
             {/* Delete Button */}
             {auth?.user._id === expense?.user && (
-              <button
+              <Button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="bg-red-400 hover:bg-red-500 border rounded-md p-1 sm:px-2 text-xs sm:text-base font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </button>
+                children={isDeleting ? "Deleting..." : "Delete"}
+                variant="danger"
+                size="small"
+              />
             )}
           </div>
         </div>

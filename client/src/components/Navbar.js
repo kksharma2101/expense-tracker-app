@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Button from "./ui/Button";
 
 const navbarItems = [
-  { name: "Home", id: "home", naviLink: "/" },
+  { name: "Home", id: "home", navLink: "/" },
   { name: "Add Expense", id: "add-expense", navLink: "/add-expense" },
   { name: "Expenses", id: "expenses", navLink: "/expenses" },
   { name: "About", id: "about", navLink: "/" },
@@ -49,46 +50,46 @@ const Navbar = () => {
               </Link>
             ) : (
               <>
-                <button
-                  className="py-1 px-2 rounded-md bg-blue-500 hover:bg-blue-600 font-bold"
+                <Button
+                  children="Logout"
                   onClick={handleLogout}
-                >
-                  Logout
-                </button>
+                  className="font-semibold"
+                />
               </>
             )}
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <button
+            <Button
+              variant="ghost"
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-blue-600 focus:outline-none"
-            >
-              <svg
-                className="h-7 w-8"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                {isOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 8h16M4 16h16"
-                  />
-                )}
-              </svg>
-            </button>
+              children={
+                <svg
+                  className="h-8 w-8"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 20 20"
+                  stroke="currentColor"
+                >
+                  {isOpen ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 8h16M4 16h16"
+                    />
+                  )}
+                </svg>
+              }
+            />
           </div>
         </div>
       </div>
@@ -116,12 +117,7 @@ const Navbar = () => {
           ) : (
             <div className="flex items-center justify-between">
               <span>User: {auth?.user?.name}</span>
-              <button
-                className="text-lg font-bold hover:text-blue-600"
-                onClick={() => handleLogout}
-              >
-                Logout
-              </button>
+              <Button onClick={() => handleLogout} children="Logout" />
             </div>
           )}
         </div>

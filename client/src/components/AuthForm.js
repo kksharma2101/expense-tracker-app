@@ -2,7 +2,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
+import Input from "./ui/Input";
+import Button from "./ui/Button";
+
+const authFormItems = [
+  { name: "Name", id: "name", type: "text" },
+  { name: "Email", id: "email", type: "email" },
+  { name: "Password", id: "password", type: "password" },
+];
 
 export const AuthForm = ({ type }) => {
   const [name, setName] = useState("");
@@ -59,7 +67,6 @@ export const AuthForm = ({ type }) => {
           { email, password }
         );
       } else {
-        // type === "signup"
         res = await axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/auth/register`,
           { name, email, password }
@@ -72,27 +79,51 @@ export const AuthForm = ({ type }) => {
           token: res.data.token,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
-        // toast.success(
-        //   res.data.message ||
-        //     `${type === "login" ? "Logged in" : "Signed up"} successfully!`
-        // );
+        toast.success(
+          res.data.message ||
+            `${type === "login" ? "Logged in" : "Signed up"} successfully!`
+        );
       } else {
         setError(res.data.message || "An unexpected error occurred.");
-        // toast.error(res.data.message || "Operation failed.");
+        toast.error(res.data.message || "Operation failed.");
       }
     } catch (error) {
       console.error("Authentication error:", error);
       if (axios.isAxiosError(error) && error.response) {
         setError(error.response.data.message || "An error occurred.");
-        // toast.error(error.response.data.message || "An error occurred.");
+        toast.error(error.response.data.message || "An error occurred.");
       } else {
         // Network error or other unexpected issues
         setError("Network error. Please check your connection.");
-        // toast.error("Network error. Please check your connection.");
+        toast.error("Network error. Please check your connection.");
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handler for input changes
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    if (id === "name") {
+      setName(value);
+    } else if (id === "email") {
+      setEmail(value);
+    } else if (id === "password") {
+      setPassword(value);
+    }
+  };
+
+  // Helper function to get the current value for an input based on its ID
+  const getInputValue = (id) => {
+    if (id === "name") {
+      return name;
+    } else if (id === "email") {
+      return email;
+    } else if (id === "password") {
+      return password;
+    }
+    return ""; // Default empty string if ID doesn't match
   };
 
   // Navigate when auth.token is set (meaning user is logged in)
@@ -101,6 +132,12 @@ export const AuthForm = ({ type }) => {
       navigate("/expenses");
     }
   }, [auth?.token, navigate]);
+
+  // Determine which items to render based on the 'type' prop
+  const filteredAuthFormItems =
+    type === "login"
+      ? authFormItems.filter((item) => item.id !== "name")
+      : authFormItems;
 
   return (
     <form
@@ -116,66 +153,27 @@ export const AuthForm = ({ type }) => {
         <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
       )}
 
-      {type === "signup" && (
-        <div className="mb-4">
-          <label
-            htmlFor="name"
-            className="block text-gray-700 text-sm font-bold mb-2"
-          >
-            Name:
-          </label>
-          <input
-            type="name"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="border p-2 rounded-md w-full"
-          />
-        </div>
-      )}
-
-      <div className="mb-4">
-        <label
-          htmlFor="email"
-          className="block text-gray-700 text-sm font-bold mb-2"
-        >
-          Email:
-        </label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="border p-2 rounded-md w-full"
+      {filteredAuthFormItems.map((item) => (
+        <Input
+          key={item.id}
+          type={item.type}
+          label={item.name}
+          id={item.id}
+          value={getInputValue(item.id)} // helper function to get the value
+          onChange={handleInputChange}
+          disabled={type == "login" && item.name == "Name"}
         />
-      </div>
+      ))}
 
-      <div className="mb-4">
-        <label
-          htmlFor="password"
-          className="block text-gray-700 text-sm font-bold mb-2"
-        >
-          Password:
-        </label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="border p-2 rounded-md w-full"
-        />
-      </div>
-
-      <button
+      <Button
+        variant="primary"
         type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded focus:outline-none focus:shadow-outline mt-5"
-        disabled={loading} // Disable button during API call
-      >
-        {loading ? "Processing..." : type === "login" ? "Login" : "Sign Up"}
-      </button>
+        disabled={loading}
+        className="w-full"
+        children={
+          loading ? "Processing..." : type === "login" ? "Login" : "Sign Up"
+        }
+      />
 
       <p className="mt-4 text-center text-gray-500 text-xs">
         {type === "login" ? (

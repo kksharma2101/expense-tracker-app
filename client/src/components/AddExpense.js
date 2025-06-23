@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { useExpenses } from "../context/ExpenseContext";
 import { useNavigate } from "react-router-dom";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
+import Button from "./ui/Button";
+import Input from "./ui/Input";
+
+const addExpenseItem = [
+  { label: "Title", id: "title", type: "text" },
+  { label: "Amount", id: "amount", type: "number" },
+  { label: "Date", id: "date", type: "date" },
+];
 
 const AddExpense = () => {
   const {
@@ -10,6 +18,7 @@ const AddExpense = () => {
     loading,
     error: contextError,
   } = useExpenses();
+
   const navigate = useNavigate();
 
   // Get today's date in 'YYYY-MM-DD' format for the max attribute and initial state
@@ -90,7 +99,7 @@ const AddExpense = () => {
         date: getTodayDate(),
       });
 
-      // toast.success("Expense added successfully!");
+      toast.success("Expense added successfully!");
       navigate("/");
     } catch (error) {
       console.error("Error adding expense:", error);
@@ -98,7 +107,7 @@ const AddExpense = () => {
         error.response?.data?.message ||
         "Failed to add expense. Please try again.";
       setFormError(errorMessage);
-      // toast.error(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -107,14 +116,14 @@ const AddExpense = () => {
   // Early returns for initial loading or context errors
   if (loading)
     return (
-      <div className="flex justify-center items-center my-auto h-screen">
+      <div className="flex justify-center items-center h-screen">
         Loading categories...
       </div>
     );
-    
+
   if (contextError)
     return (
-      <div className="flex justify-center items-center my-auto h-screen text-red-500">
+      <div className="flex justify-center items-center h-screen text-red-500">
         Error loading categories: {contextError}
       </div>
     );
@@ -136,39 +145,10 @@ const AddExpense = () => {
         )}
 
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="title">
-            Title
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="amount">
-            Amount
-          </label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            value={formData.amount}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-            step="0.01"
-            min="0"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="category">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="category"
+          >
             Category
           </label>
           {categories && categories.length > 0 ? (
@@ -193,29 +173,26 @@ const AddExpense = () => {
           )}
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="date">
-            Date
-          </label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
+        {addExpenseItem.map((item) => (
+          <Input
+            label={item.label}
+            key={item.id}
+            type={item.type}
+            name={item.id}
+            value={formData[item.id]}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-            max={getTodayDate()}
+            // Add max for date input to prevent future dates
+            max={item.type === "date" ? getTodayDate() : undefined}
           />
-        </div>
+        ))}
 
-        <button
+        <Button
+          variant="primary"
+          className="w-full"
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isSubmitting}
-        >
-          {isSubmitting ? "Adding Expense..." : "Add Expense"}
-        </button>
+          children={isSubmitting ? "Adding Expense..." : "Add Expense"}
+        />
       </form>
     </div>
   );

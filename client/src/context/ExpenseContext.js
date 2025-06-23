@@ -8,7 +8,7 @@ import {
 } from "react"; // Added useCallback
 import { useAuth } from "./AuthContext";
 import { useLocation } from "react-router-dom";
-// import { toast } from "react-toastify"; // Assume you're using react-toastify
+import { toast } from "react-toastify"; // Assume you're using react-toastify
 
 const ExpenseContext = createContext();
 
@@ -55,7 +55,7 @@ const ExpenseProvider = ({ children }) => {
           err.message ||
           "Failed to fetch expenses."
       );
-      // toast.error(err.response?.data?.message || "Failed to load expenses."); // User feedback
+      toast.error(err.response?.data?.message || "Failed to load expenses."); // User feedback
     } finally {
       setLoading(false);
     }
@@ -105,13 +105,13 @@ const ExpenseProvider = ({ children }) => {
         Array.isArray(prev) ? prev.filter((exp) => exp.id !== id) : []
       );
       // setExpenses((prev) => prev.filter((exp) => exp._id !== id));
-      // toast.success("Expense deleted successfully!");
+      toast.success("Expense deleted successfully!");
     } catch (err) {
       console.error("Error deleting expense:", err);
       const errorMessage =
         err.response?.data?.message || "Failed to delete expense.";
       setError(errorMessage);
-      // toast.error(errorMessage); // User feedback
+      toast.error(errorMessage); // User feedback
       throw new Error(errorMessage);
     }
   };
@@ -119,6 +119,42 @@ const ExpenseProvider = ({ children }) => {
   const updateFilter = useCallback((newFilter) => {
     setFilter((prev) => ({ ...prev, ...newFilter }));
   }, []); // No dependencies for this simple updater
+
+  const handleExportCSV = async () => {
+    try {
+      // Adjust this URL to match your backend export endpoint
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/expense/export-expense`,
+        {
+          responseType: "blob", // Important: tells Axios to expect a binary blob
+        }
+      );
+
+      // Create a Blob from the response data
+      const blob = new Blob([response.data], { type: "text/csv" });
+
+      // Create a URL for the Blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary link element
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "expenses.csv"); // Set the desired filename
+
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+
+      // Clean up the URL object
+      window.URL.revokeObjectURL(url);
+      toast.success("CSV export initiated successfully!");
+    } catch (error) {
+      console.error("Error during CSV export:", error);
+      // Handle error in UI, e.g., show a toast message
+      toast.error("Failed to export expenses. Please try again.");
+    }
+  };
 
   return (
     <ExpenseContext.Provider
@@ -131,6 +167,7 @@ const ExpenseProvider = ({ children }) => {
         addExpense,
         deleteExpense,
         updateFilter,
+        handleExportCSV,
       }}
     >
       {children}
