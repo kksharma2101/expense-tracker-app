@@ -42,7 +42,12 @@ const ExpenseList = () => {
 
   return (
     <div className="space-y-6 w-full">
-      <Button children="Export All Expenses to CSV" onClick={handleExportCSV} />
+      {auth?.user && (
+        <Button
+          children="Export All Expenses to CSV"
+          onClick={handleExportCSV}
+        />
+      )}
       <div className="bg-white p-6 w-full rounded-lg shadow-md">
         <div className="flex justify-between items-center w-full mb-4">
           <h2 className="text-xl font-semibold">Your Expenses</h2>
